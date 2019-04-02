@@ -1,5 +1,7 @@
 Ben Arbib (ba2490)
+
 Vikram Ho (vwh2107)
+
 Gael Zendejas (gz2255)
 
 # Project Proposal
@@ -18,7 +20,9 @@ After step three we will need to assess our timeframe and feasibility and either
 While all three members of the project will share in the varying tasks of the project, below are the duties each will lead.
 
 Designer (interviews, feedback loops, sketch): Vikram Ho
+
 Engineer (architecture, efficiency, algorithms): Ben Arbib
+
 Presenter (scheduling, write-ups, presentation): Gael Zendejas
 
 ### Testing and Measurement
