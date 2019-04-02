@@ -1,6 +1,6 @@
-# beautiful_c
-C++ final project
-
+Ben Arbib (ba2490)
+Vikram Ho (vwh2107)
+Gael Zendejas (gz2255)
 
 # Project Proposal
 ## HTML Parsing Library for C++
