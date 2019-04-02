@@ -1,6 +1,6 @@
-Ben Arbib (ba2490)
-Vikram Ho (vwh2107)
-Gael Zendejas (gz2255)
+Ben Arbib (ba2490)  
+Vikram Ho (vwh2107)   
+Gael Zendejas (gz2255)  
 
 # Project Proposal
 ## HTML Parsing Library for C++
@@ -17,9 +17,9 @@ After step three we will need to assess our timeframe and feasibility and either
 ### Roles
 While all three members of the project will share in the varying tasks of the project, below are the duties each will lead.
 
-Designer (interviews, feedback loops, sketch): Vikram Ho
-Engineer (architecture, efficiency, algorithms): Ben Arbib
-Presenter (scheduling, write-ups, presentation): Gael Zendejas
+Designer (interviews, feedback loops, sketch): Vikram Ho  
+Engineer (architecture, efficiency, algorithms): Ben Arbib  
+Presenter (scheduling, write-ups, presentation): Gael Zendejas  
 
 ### Testing and Measurement
 The baseline test is to successfully parse basic HTML file via standard tags. The metric is that it works exactly (or better) than the key BeautifulSoup functions we choose to emulate. We will need to further develop a testing strategy after we conduct interviews with prospective users. 
