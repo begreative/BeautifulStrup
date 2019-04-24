@@ -21,6 +21,7 @@ for file in os.listdir(directory):
         in_file.close()
 
         ast_node = ast.parse(code)
+        print(ast.dump(ast_node))
         pretty_string = astpretty.pformat(ast_node, indent="  ", show_offsets=True)
         new_file = "ast_" + filename[:-3] + ".txt"
         out_file = open(new_file, "w+")
