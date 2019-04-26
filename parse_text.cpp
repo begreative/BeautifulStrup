@@ -53,6 +53,34 @@ struct classDef create_class_def(json class_def){
   return new_class;
 }
 
+int assign_if_main(json p_main){
+  int got_main = 0;
+  int got_name = 0;
+  
+  if (p_main.count("test")){
+    json test = p_main["test"];
+    string left_id;
+    string comparators;
+    
+    if(test.count("comparators")){
+        json comp = test["comparators"][0];
+        if (comp.count("func") && comp["func"].count("s"))
+            comparators = comp["func"]["s"].get<string>();;
+    }
+    if(test.count("left")){
+        left_id = test["left"]["id"].get<string>();
+    }
+    
+    if (!left_id.compare("__name__") || !comparators.compare("__name__"))
+      got_name = 1;
+
+    if (!left_id.compare("__main__") || !comparators.compare("__main__"))
+      got_main = 1;
+  }
+  
+  return (got_main && got_name);
+}
+
 void print_variables(struct method method){
     cout << "        variables:" << endl;
     for (string var : method.args)
@@ -75,11 +103,12 @@ void print_classes(vector<struct classDef> classes){
 
 int main(int argc, char *argv[])
 {
-    if (argc != 2){
+    if (argc < 2){
         cout << "enter .json file/s" << endl;
         exit(0);
     }
-    vector <struct classDef> classes; 
+    vector <struct classDef> classes;
+    int found_main;
     std::ifstream i("classes/test.json");
     json j;
     i >> j;
@@ -88,13 +117,15 @@ int main(int argc, char *argv[])
     // iterate the array
     for (json::iterator it = body.begin(); it != body.end(); ++it) {
       json entry = it.value();
-      if (entry.find("ast_type") != entry.end()) {
-//        cout << entry["ast_type"] << endl;
-        if (!entry["ast_type"].get<std::string>().compare("ClassDef"))
-          classes.push_back(create_class_def(entry));
-//        cout << "============" << endl;
-      }
+//    cout << entry["ast_type"] << endl;
+      if (!entry["ast_type"].get<std::string>().compare("ClassDef"))
+        classes.push_back(create_class_def(entry));
+//    cout << "============" << endl;
+      if (!entry["ast_type"].get<string>().compare("If"))
+        found_main = assign_if_main(entry);
     }
+    if (found_main)
+      cout << "Found main" << endl;
     print_classes(classes);
 
     return 0;
