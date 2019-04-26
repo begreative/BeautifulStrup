@@ -29,10 +29,10 @@ vector <string>get_args(json args){
   return arg_names;
 }
 
-struct method create_method(json body, json args, string name){
+struct method create_method(json args, string name){
     struct method new_method;
     new_method.name = name;
-    new_method.args = get_args(args);
+    new_method.args = get_args(args["args"]);
     return new_method;
 }
 
@@ -46,15 +46,15 @@ struct classDef create_class_def(json class_def){
       json val = it.value();
       if(val.count("ast_type") && 
           !val["ast_type"].get<std::string>().compare("FunctionDef")){
-          new_class.methods.push_back(create_method(val["body"], 
-                    val["args"], val["name"].get<string>()));
+          new_class.methods.push_back(
+              create_method(val["args"], val["name"].get<string>()));
       }
   }
   return new_class;
 }
 
 void print_variables(struct method method){
-    cout << "      variables:" << endl;
+    cout << "        variables:" << endl;
     for (string var : method.args)
       cout << "        \\_ " << var << endl;
 }
@@ -68,7 +68,7 @@ void print_methods(struct classDef cls){
 
 void print_classes(vector<struct classDef> classes){
     for (struct classDef c : classes){
-      cout << "Class name " << c.name << endl;
+      cout << "Class name: " << c.name << endl;
       print_methods(c);
     }
 }
@@ -89,10 +89,10 @@ int main(int argc, char *argv[])
     for (json::iterator it = body.begin(); it != body.end(); ++it) {
       json entry = it.value();
       if (entry.find("ast_type") != entry.end()) {
-        cout << entry["ast_type"] << endl;
+//        cout << entry["ast_type"] << endl;
         if (!entry["ast_type"].get<std::string>().compare("ClassDef"))
           classes.push_back(create_class_def(entry));
-        cout << "============" << endl;
+//        cout << "============" << endl;
       }
     }
     print_classes(classes);
