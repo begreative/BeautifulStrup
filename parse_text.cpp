@@ -56,7 +56,6 @@ struct classDef create_class_def(json class_def){
 int assign_if_main(json p_main){
   int got_main = 0;
   int got_name = 0;
-  
   if (p_main.count("test")){
     json test = p_main["test"];
     string left_id;
@@ -67,7 +66,7 @@ int assign_if_main(json p_main){
         if (comp.count("func") && comp["func"].count("s"))
             comparators = comp["func"]["s"].get<string>();;
     }
-    if(test.count("left")){
+    if(test.count("left") && test["left"].count("id")){
         left_id = test["left"]["id"].get<string>();
     }
     
@@ -109,19 +108,21 @@ int main(int argc, char *argv[])
     }
     vector <struct classDef> classes;
     int found_main;
-    std::ifstream i("classes/test.json");
+    std::ifstream i(argv[1]);
     json j;
     i >> j;
-    json body = j["body"];
 
+    json body= j["body"];
     // iterate the array
     for (json::iterator it = body.begin(); it != body.end(); ++it) {
       json entry = it.value();
 //    cout << entry["ast_type"] << endl;
-      if (!entry["ast_type"].get<std::string>().compare("ClassDef"))
+      if (entry.count("ast_type") && 
+          !entry["ast_type"].get<std::string>().compare("ClassDef"))
         classes.push_back(create_class_def(entry));
 //    cout << "============" << endl;
-      if (!entry["ast_type"].get<string>().compare("If"))
+      if (entry.count("ast_type") && 
+          !entry["ast_type"].get<string>().compare("If"))
         found_main = assign_if_main(entry);
     }
     if (found_main)
