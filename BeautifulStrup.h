@@ -5,17 +5,15 @@
 
 namespace functions {
 
-    void find_invocations(std::string file, std::string fname, std::string dir);
+    void find_invocations(std::string file, std::string func, std::string dir);
+    void find_defintion(std::string file, std::string func, std::string dir);
 
 }
 
 
 namespace classes {
 
-}
-
-
-namespace files {
+    void find_relationships(std::string dir);
 
 }
 

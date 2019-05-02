@@ -5,45 +5,100 @@
 #include "BeautifulStrup.h"
 #include <nlohmann/json.hpp>
 
+/* HELPER FUNCTIONS DECLARATIONS:
+ * Intentionally excluded from header file so as to be used exclusively here
+ */
+
+std::string create_json(std::string file); //Given a python file, creates AST in JSON format
+nlohmann::json open_json(std::string file); //Given a JSON file, opens and returns a JSON object
+
+
+
+/* LIBRARY FUNCTIONS:
+ * Declared in header file as to be used externally
+ */ 
+
 namespace functions {
 
-    void find_invocations(std::string file, std::string fname, std::string dir) {
-
-        system("chmod u+x py_to_json.sh");
-        std::string tmp = "./py_to_json.sh " + file;
-        const char *command = tmp.c_str();
-        system(command);
-
-        std::string pyext = ".py";
-        std::string jext = "AST.json";
-
-        std::string::size_type n = file.rfind("/") + 1;
-        std::string jfile = file.substr(n);
-        jfile.replace(jfile.find(pyext), pyext.length(), jext);
+    //TO DO: GAEL
+    void find_invocations(std::string file, std::string func, std::string dir) {
         
-        std::ifstream i(jfile);
-        nlohmann::json j;
-        i >> j;
+        std::string jfile = create_json(file);
+        nlohmann::json j = open_json(jfile);
         
         nlohmann::json body = j["body"];
         for(nlohmann::json::iterator it = body.begin(); it != body.end(); it++) {
             nlohmann::json entry = it.value();
-            if(entry.count("ast_type") && entry["ast_type"].get<std::string>().compare("Class"))
-                std::cout << entry["ast_type"] << std::endl;
+            //iterate through and find "Call"
+            //create method
         }
+
+    }
+
+
+    //TO DO:
+    void find_defintion(std::string file, std::string func, std::string dir) {
 
 
     }
 
+
+
 }
+
 
 
 namespace classes {
 
+
+    //TOD DO:
+    void find_relationships(std::string dir) {
+
+
+    }
+
+
 }
 
 
-namespace files {
+
+
+/* HELPER FUNCTIONS:
+ * Functions below intentionally excluded from header file so as to be private
+ */
+
+std::string create_json(std::string file) {
+
+    system("chmod u+x py_to_json.sh");
+    std::string tmp = "./py_to_json.sh " + file;
+    const char *command = tmp.c_str();
+    system(command);
+
+    std::string pyext = ".py";
+    std::string jext = "AST.json";
+
+    std::string::size_type n = file.rfind("/") + 1;
+    std::string jfile = file.substr(n);
+    jfile.replace(jfile.find(pyext), pyext.length(), jext);
+
+    return jfile;
+
+}
+
+
+nlohmann::json open_json(std::string jfile) {
+
+    std::ifstream i(jfile);
+    nlohmann::json j;
+    i >> j;
+
+    return j;
+
+}
+
+
+void find_call(nlohmann::json entry) {
+
 
 
 }
