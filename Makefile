@@ -1,7 +1,25 @@
-all: parse_text
+CC  = g++
+CXX = g++
 
-parse_text:
-	g++ -std=c++11 parse_text.cpp -o parse_text
+INCLUDES =
 
+CFLAGS   = -g -Wall $(INCLUDES)
+CXXFLAGS = -g -Wall $(INCLUDES) -std=c++17
+
+LDFLAGS = -g
+LDLIBS  =
+
+executables = test_soup
+# objects = test_soup.o
+
+.PHONY: default
+default: $(executables)
+
+test_soup: BeautifulStrup.cpp
+
+.PHONY: clean
 clean:
-	rm parse_text 
+	rm -f *~ a.out core $(objects) $(executables)
+
+.PHONY: all
+all: clean default
