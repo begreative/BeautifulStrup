@@ -21,9 +21,9 @@ $ brew install nlohmann_json</pre>
 
 <h2>Documentation</h2><br/>
 <pre> 
-  <li> void find_defintion(std::string file, std::string func, std::string dir)<br/>
+  <li> void find_defintion(std::string file, std::string func, std::string dir)
   This function finds the location of the method in a class and prints out the method for the user
-  <li> void find_invocation(std::string file, std::string func, std::string dir)<br/>
+  <li> void find_invocation(std::string file, std::string func, std::string dir)
   This function finds where the method is invoked in all other classes
   <li> void find_relationships(std::string dir) 
   This function gives the user the relationships between the different functions in a class</pre>
