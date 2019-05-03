@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
+#include <boost/filesystem.hpp>
 
 #include "BeautifulStrup.h"
 #include <nlohmann/json.hpp>
@@ -32,6 +33,18 @@ namespace functions {
             /* code to capture/save function from source file */
         }
 
+        namespace fs = boost::filesystem;
+        
+        for (fs::recursive_directory_iterator end, d(dir); d != end; ++d ) {
+            if(fs::is_directory(d->path()))
+                continue;
+            if(d->path().string().find(".py") != std::string::npos) {
+                std::string jn = create_json(d->path().string());
+                nlohmann::json jobj = open_json(jn);
+                /* code to identify function calls in given python file */
+            }
+        }
+
     }
 
 
@@ -40,8 +53,6 @@ namespace functions {
 
 
     }
-
-
 
 }
 
