@@ -22,15 +22,14 @@ namespace functions {
 
     //TO DO: GAEL
     void find_invocations(std::string file, std::string func, std::string dir) {
-        
+
         std::string jfile = create_json(file);
         nlohmann::json j = open_json(jfile);
         
         nlohmann::json body = j["body"];
         for(nlohmann::json::iterator it = body.begin(); it != body.end(); it++) {
             nlohmann::json entry = it.value();
-            //iterate through and find "Call"
-            //create method
+            /* code to capture/save function from source file */
         }
 
     }
@@ -59,7 +58,6 @@ namespace classes {
 
 
 }
-
 
 
 
@@ -93,12 +91,5 @@ nlohmann::json open_json(std::string jfile) {
     i >> j;
 
     return j;
-
-}
-
-
-void find_call(nlohmann::json entry) {
-
-
 
 }
