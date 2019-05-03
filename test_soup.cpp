@@ -12,7 +12,7 @@ int main(int argc, char const *argv[])
     
     std::string f = argv[1];
     std::string d = argv[2];
-    functions::find_invocations(f, "add", d);
+    methods::find_invocations(f, "add", d);
      
     return 0;
 }
