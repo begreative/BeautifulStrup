@@ -7,7 +7,7 @@ For example, given a python file directory, the user can find the defintion of a
   
 <h2>Setup</h2>
 <pre>
-$ brew install boost<br/>
+$ brew install boost
 $ brew tap nlohmann/json 
 $ brew install nlohmann_json</pre>
 
