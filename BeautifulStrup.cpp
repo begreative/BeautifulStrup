@@ -24,6 +24,9 @@ void print_method(methods::method m ,std::string file_name, int from, int to);
 methods::method find_method(classes::file f, std::string name);
 methods::method find_method_from_vector(std::vector<methods::method> methods, std::string name);
 int get_last_line(nlohmann::json entry, int curr);
+void print_file(classes::file f);
+void print_class(classes::cls c);
+void print_methods(methods::method m);
 
 namespace methods {
 
@@ -64,20 +67,24 @@ namespace methods {
             if(d->path().string().find(".py") != std::string::npos) {
                 std::string py_name = d->path().string();
                 std::string jn = create_json(py_name);
-                nlohmann::json j = open_json(jn);
-                classes::file f = (create_file_class(j));
+                nlohmann::json jf = open_json(jn);
+                classes::file f = (create_file_class(jf));
                 f.name = py_name;
                 files.push_back(f);
                 /* code to identify function calls in given python file */
             }
+        }
 
             for(classes::file f : files){
+                
                 methods::method m = find_method(f, func);
-                if(m.name.compare("1")){
-                    print_method(m, f.name, m.first_line, m.last_line);
+                if(m.name.compare("1")){ 
+                    // print_file(f);
+                    std::cout << "File: " << f.name << std::endl;
+                    print_method(m, f.name, m.first_line-1, m.last_line);
+                    std::cout << "" << std::endl;
                 }
             }
-        }
 
         // for (std::vector<nlohmann::json>::iterator it = json_vec.begin() ; 
         //                                     it != json_vec.end(); ++it){
@@ -118,9 +125,11 @@ namespace classes {
 
 classes::file create_file_class(nlohmann::json j){
         classes::file f;
+        nlohmann::json body;
         // f.name = file_name;
-
-        for (nlohmann::json::iterator it = j.begin(); it != j.end(); it++){
+        if (j.count("body"))
+            body = j["body"];
+        for (nlohmann::json::iterator it = body.begin(); it != body.end(); it++){
             nlohmann::json entry = it.value();
             if (entry.count("ast_type")){
                 std::string ast_type = entry["ast_type"].get<std::string>();
@@ -130,6 +139,8 @@ classes::file create_file_class(nlohmann::json j){
                     continue;
                 else if (!ast_type.compare("ClassDef"))
                     f.classes.push_back(get_class(entry));
+                else if (!ast_type.compare("FunctionDef"))
+                    f.methods.push_back(get_method(entry));
             }
         }
     return f;
@@ -178,16 +189,18 @@ std::vector<nlohmann::json> dir_to_json_files(std::string dir){
 }
 
 std::string get_import(nlohmann::json entry){
-    return entry["names"]["name"];
+    if (entry.count("names") && entry["names"].count("name"))
+        return entry["names"]["name"];
+    return "";
 }
 
 methods::method get_method(nlohmann::json entry){
     methods::method mthd;
     nlohmann::json body = entry["body"];
     mthd.name = entry["name"];
-    mthd.first_line = std::atoi(entry["lineno"].get<std::string>().c_str());
-    mthd.last_line = get_last_line(entry, mthd.first_line);
 
+    mthd.first_line = entry["lineno"];
+    mthd.last_line = get_last_line(entry, mthd.first_line);
     // add all args
     if(entry.count("args") && entry["args"].count("args")){
         nlohmann::json args = entry["args"]["args"];
@@ -201,6 +214,7 @@ methods::method get_method(nlohmann::json entry){
 
 classes::cls get_class(nlohmann::json j){
     classes::cls new_cls;
+
     nlohmann::json body = j["body"];
     new_cls.name = j["name"].get<std::string>();
     for (nlohmann::json::iterator it = body.begin(); it != body.end(); it++){
@@ -217,10 +231,10 @@ classes::cls get_class(nlohmann::json j){
 void print_method(methods::method m, std::string file_name, int from, int to){
     std::fstream f(file_name);
     std::string line;
-    
-    for (int i = 0; i <= from; i++){
+    std::cout << "code from lines: " << from << " - " << to << std::endl;
+    for (int i = 0; i <= to; i++){
         getline(f,line);
-        if (i>=to)
+        if (i>=from)
             std::cout << line << std::endl;
     }
 }
@@ -252,15 +266,36 @@ methods::method find_method_from_vector(std::vector<methods::method> methods, st
 }
 
 int get_last_line(nlohmann::json body, int curr){
-
+    if (body.size() <= 1)
+        return 0;
+    
     for (nlohmann::json::iterator it = body.begin(); it != body.end(); it++){
     nlohmann::json entry = it.value();
     if(entry.count("lineno")){
-        int line = std::atoi(entry["lineno"].get<std::string>().c_str());
-        curr = curr >= line? curr: line;
+        int line = entry["lineno"];
+        curr = curr > line? curr: line;
         }
     int next_block = get_last_line(entry, curr);
-    curr = curr >= next_block? curr : next_block;
+    curr = curr > next_block? curr : next_block;
     }
+
     return curr;
+}
+
+void print_methods(methods::method m){
+    std::cout << "    \\_ : " << m.name << std::endl;
+}
+
+void print_class(classes::cls c){
+    std::cout << "\\_ Class: " << c.name << std::endl;
+    for(methods::method m: c.methods)
+        print_methods(m);
+}
+
+void print_file(classes::file f){
+    std::cout << "File: " << f.name << std::endl;
+    for(classes::cls c: f.classes)
+        print_class(c);
+    for(methods::method m: f.methods)
+        print_methods(m);
 }

@@ -4,6 +4,10 @@ class Classy:
 
     def print_class_info(self):
         print(self.name)
+        x = 6
+        y = 65
+        z = x+y
+        
 
     def change_class_name(self, new_name):
         self.name = new_name
