@@ -12,7 +12,7 @@ namespace methods {
 
     class method{
     public:
-        std::string name;
+        std::string name; 
         std::vector<std::string> args;
         int var_amnt;
         int line_num;
@@ -26,9 +26,9 @@ namespace methods {
 
 namespace classes {
     class cls{
+    public:
         std::string name;
         std::vector<methods::method> methods;
-    public:
         cls();
         ~cls();
     };
@@ -44,8 +44,8 @@ namespace classes {
         ~file();
     };
 
-    void create_file_trees(std::string dir);
-    classes::file create_file_class(std::string file_name);
+    // void create_file_trees(std::string dir);
+    file create_file_class(std::string file_name);
     void find_relationships(std::string dir);
 
 }
