@@ -15,7 +15,8 @@ namespace methods {
         std::string name; 
         std::vector<std::string> args;
         int var_amnt;
-        int line_num;
+        int first_line;
+        int last_line;
         std::string obj_ref;
         std::string from_class;
         method();
