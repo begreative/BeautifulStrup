@@ -20,7 +20,7 @@ std::vector<nlohmann::json> dir_to_json_files(std::string dir);
 std::string get_import(nlohmann::json entry);
 methods::method get_method(nlohmann::json entry);
 classes::cls get_class(nlohmann::json entry);
-void print_method(methods::method m ,std::string file_name);
+void print_method(methods::method m ,std::string file_name, int from, int to);
 methods::method find_method(classes::file f, std::string name);
 methods::method find_method_from_vector(std::vector<methods::method> methods, std::string name);
 int get_last_line(nlohmann::json entry, int curr);
@@ -74,7 +74,7 @@ namespace methods {
             for(classes::file f : files){
                 methods::method m = find_method(f, func);
                 if(m.name.compare("1")){
-                    print_method(m, f.name);
+                    print_method(m, f.name, m.first_line, m.last_line);
                 }
             }
         }
@@ -214,9 +214,15 @@ classes::cls get_class(nlohmann::json j){
     return new_cls;
 }
 
-void print_method(methods::method m, std::string file_name){
+void print_method(methods::method m, std::string file_name, int from, int to){
+    std::fstream f(file_name);
+    std::string line;
     
-    return;
+    for (int i = 0; i <= from; i++){
+        getline(f,line);
+        if (i>=to)
+            std::cout << line << std::endl;
+    }
 }
 
 methods::method find_method(classes::file f, std::string name){
