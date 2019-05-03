@@ -26,8 +26,6 @@ namespace methods {
  * Declared in header file as to be used externally
  */ 
 
-namespace functions {
-
     //TO DO: GAEL
     void find_invocations(std::string file, std::string func, std::string dir) {
 
@@ -137,8 +135,8 @@ namespace classes {
                 else if (!ast_type.compare("ClassDef"))
                     f.classes.push_back(get_class(entry));
             }
-
         }
+    return f;
     }
 }
 
