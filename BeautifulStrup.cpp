@@ -1,7 +1,10 @@
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
+
 #include <vector>
+#include <boost/filesystem.hpp>
+
 
 #include "BeautifulStrup.h"
 #include <nlohmann/json.hpp>
@@ -19,14 +22,34 @@ namespace methods {
     void find_invocations(std::string file, std::string meth, std::string dir) {
         std::vector<classes::file> files;
 
+/* LIBRARY FUNCTIONS:
+ * Declared in header file as to be used externally
+ */ 
+
+namespace functions {
+
+    //TO DO: GAEL
+    void find_invocations(std::string file, std::string func, std::string dir) {
+
         std::string jfile = create_json(file);
         nlohmann::json j = open_json(jfile);
 
         nlohmann::json body = j["body"];
         for(nlohmann::json::iterator it = body.begin(); it != body.end(); it++) {
             nlohmann::json entry = it.value();
-            //iterate through and find "Call"
-            //create method
+            /* code to capture/save function from source file */
+        }
+
+        namespace fs = boost::filesystem;
+        
+        for (fs::recursive_directory_iterator end, d(dir); d != end; ++d ) {
+            if(fs::is_directory(d->path()))
+                continue;
+            if(d->path().string().find(".py") != std::string::npos) {
+                std::string jn = create_json(d->path().string());
+                nlohmann::json jobj = open_json(jn);
+                /* code to identify function calls in given python file */
+            }
         }
         // found func name and var amnt
     }
@@ -59,14 +82,13 @@ namespace classes {
     };
 
     //TOD DO:
-    void find_relationships(std::string dir) {
-
-
+    void find_relationships(std::string dir){
     }
 
     std::string get_import(nlohmann::json entry){
         return entry["names"]["name"];
     }
+  
     methods::method get_method(nlohmann::json entry){
         methods::method mthd = new method();
         nlohmann::json body = entry["body"];
@@ -99,17 +121,14 @@ namespace classes {
         return new_cls;
     }
 
-    classes::file create_file_class(std::string file_name)
-    {
+    classes::file create_file_class(std::string file_name){
         nlohmann::json body = open_json(file_name)["body"];
         classes::file f;
         f.name = file_name;
 
-        for (nlohmann::json::iterator it = body.begin(); it != body.end(); it++)
-        {
+        for (nlohmann::json::iterator it = body.begin(); it != body.end(); it++){
             nlohmann::json entry = it.value();
-            if (entry.count("ast_type"))
-            {
+            if (entry.count("ast_type")){
                 std::string ast_type = entry["ast_type"].get<std::string>();
                 if (!ast_type.compare("Import"))
                     f.import.push_back(get_import(entry));
@@ -121,12 +140,7 @@ namespace classes {
 
         }
     }
-
-
 }
-
-
-
 
 /* HELPER FUNCTIONS:
  * Functions below intentionally excluded from header file so as to be private
@@ -147,23 +161,13 @@ std::string create_json(std::string file) {
     jfile.replace(jfile.find(pyext), pyext.length(), jext);
 
     return jfile;
-
 }
 
 
 nlohmann::json open_json(std::string jfile) {
-
     std::ifstream i(jfile);
     nlohmann::json j;
     i >> j;
 
     return j;
-
-}
-
-
-void find_call(nlohmann::json entry) {
-
-
-
 }
