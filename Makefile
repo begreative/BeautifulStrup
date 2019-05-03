@@ -7,7 +7,7 @@ CFLAGS   = -g -Wall $(INCLUDES)
 CXXFLAGS = -g -Wall $(INCLUDES) -std=c++17
 
 LDFLAGS = -g
-LDLIBS  =
+LDLIBS  = -lboost_filesystem
 
 executables = test_soup
 # objects = test_soup.o
