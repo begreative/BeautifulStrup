@@ -20,7 +20,7 @@ $ brew install nlohmann_json</pre>
 
 
 <h2>Documentation</h2><br/>
-<pre> The 3 main functions are <br/>
+<pre> The 3 main functions are 
   <li> void find_defintion(std::string file, std::string func, std::string dir) <br/>
   This function finds the location of the method in a class and prints out the method for the user
   <li> void find_invocation(std::string file, std::string func, std::string dir) <br/>
