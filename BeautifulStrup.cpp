@@ -2,6 +2,10 @@
 #include <cstdlib>
 #include <fstream>
 
+#include <vector>
+#include <boost/filesystem.hpp>
+
+
 #include "BeautifulStrup.h"
 #include <nlohmann/json.hpp>
 
@@ -11,61 +15,136 @@
 
 std::string create_json(std::string file); //Given a python file, creates AST in JSON format
 nlohmann::json open_json(std::string file); //Given a JSON file, opens and returns a JSON object
+classes::file create_file_class(nlohmann::json j);
+std::vector<nlohmann::json> dir_to_json_files(std::string dir);
+std::string get_import(nlohmann::json entry);
+methods::method get_method(nlohmann::json entry);
+classes::cls get_class(nlohmann::json entry);
+void print_method(methods::method m ,std::string file_name, int from, int to);
+methods::method find_method(classes::file f, std::string name);
+methods::method find_method_from_vector(std::vector<methods::method> methods, std::string name);
+int get_last_line(nlohmann::json entry, int curr);
+void print_file(classes::file f);
+void print_class(classes::cls c);
+void print_methods(methods::method m);
 
+namespace methods {
 
-
+    method::method(){
+        name = "";
+    }
+    method::~method(){
+        // do nothing
+    }
+    //TODO: find everywhere its being used
 /* LIBRARY FUNCTIONS:
  * Declared in header file as to be used externally
- */ 
-
-namespace functions {
+ */
 
     //TO DO: GAEL
     void find_invocations(std::string file, std::string func, std::string dir) {
-        
-        std::string jfile = create_json(file);
-        nlohmann::json j = open_json(jfile);
-        
+        // std::vector<nlohmann::json> json_vec = dir_to_json_files(dir);
+        nlohmann::json j = open_json(create_json(file));
+
         nlohmann::json body = j["body"];
         for(nlohmann::json::iterator it = body.begin(); it != body.end(); it++) {
             nlohmann::json entry = it.value();
-            //iterate through and find "Call"
-            //create method
+            /* code to capture/save function from source file */
+        }
+        // found func name and var amnt
+    }
+
+    //TODO: find where the function lives
+    void find_defintion(std::string file, std::string func, std::string dir) {
+        // std::vector<nlohmann::json> json_vec = dir_to_json_files(dir);
+        namespace fs = boost::filesystem;
+        std::vector<classes::file> files;
+        nlohmann::json j = open_json(create_json(file));
+
+        for (fs::recursive_directory_iterator end, d(dir); d != end; ++d ) {
+            if(fs::is_directory(d->path()))
+                continue;
+            if(d->path().string().find(".py") != std::string::npos) {
+                std::string py_name = d->path().string();
+                std::string jn = create_json(py_name);
+                nlohmann::json jf = open_json(jn);
+                classes::file f = (create_file_class(jf));
+                f.name = py_name;
+                files.push_back(f);
+                /* code to identify function calls in given python file */
+            }
         }
 
+            for(classes::file f : files){
+                
+                methods::method m = find_method(f, func);
+                if(m.name.compare("1")){ 
+                    // print_file(f);
+                    std::cout << "File: " << f.name << std::endl;
+                    print_method(m, f.name, m.first_line-1, m.last_line);
+                    std::cout << "" << std::endl;
+                }
+            }
+
+        // for (std::vector<nlohmann::json>::iterator it = json_vec.begin() ; 
+        //                                     it != json_vec.end(); ++it){
+        //     files.push_back(create_file_class(*it));
+        //                                     }
+        // look for standalone methods
+        // look inside classes
     }
-
-
-    //TO DO:
-    void find_defintion(std::string file, std::string func, std::string dir) {
-
-
-    }
-
-
-
 }
-
-
 
 namespace classes {
+    cls::cls(){
+        name = "";
+    };
 
+    cls::~cls(){
+        //not much to do;
+    };
+
+    file::file()
+    {
+        name = "";
+    };
+
+    file::~file(){
+        //not much to do;
+    };
 
     //TOD DO:
-    void find_relationships(std::string dir) {
-
-
+    void find_relationships(std::string dir){
     }
 
-
 }
-
-
-
 
 /* HELPER FUNCTIONS:
  * Functions below intentionally excluded from header file so as to be private
  */
+
+classes::file create_file_class(nlohmann::json j){
+        classes::file f;
+        nlohmann::json body;
+        // f.name = file_name;
+        if (j.count("body"))
+            body = j["body"];
+        for (nlohmann::json::iterator it = body.begin(); it != body.end(); it++){
+            nlohmann::json entry = it.value();
+            if (entry.count("ast_type")){
+                std::string ast_type = entry["ast_type"].get<std::string>();
+                if (!ast_type.compare("Import"))
+                    f.import.push_back(get_import(entry));
+                else if (!ast_type.compare("If"))
+                    continue;
+                else if (!ast_type.compare("ClassDef"))
+                    f.classes.push_back(get_class(entry));
+                else if (!ast_type.compare("FunctionDef"))
+                    f.methods.push_back(get_method(entry));
+            }
+        }
+    return f;
+    }
 
 std::string create_json(std::string file) {
 
@@ -82,23 +161,141 @@ std::string create_json(std::string file) {
     jfile.replace(jfile.find(pyext), pyext.length(), jext);
 
     return jfile;
-
 }
 
 
 nlohmann::json open_json(std::string jfile) {
-
     std::ifstream i(jfile);
     nlohmann::json j;
     i >> j;
 
     return j;
-
 }
 
+std::vector<nlohmann::json> dir_to_json_files(std::string dir){
+    namespace fs = boost::filesystem;
+    std::vector<nlohmann::json> json_vector;
 
-void find_call(nlohmann::json entry) {
+    for (fs::recursive_directory_iterator end, d(dir); d != end; ++d ) {
+        if(fs::is_directory(d->path()))
+            continue;
+        if(d->path().string().find(".py") != std::string::npos) {
+            std::string jn = create_json(d->path().string());
+            json_vector.push_back(open_json(jn));
+            /* code to identify function calls in given python file */
+        }
+    }
+    return json_vector;
+}
 
+std::string get_import(nlohmann::json entry){
+    if (entry.count("names") && entry["names"].count("name"))
+        return entry["names"]["name"];
+    return "";
+}
 
+methods::method get_method(nlohmann::json entry){
+    methods::method mthd;
+    nlohmann::json body = entry["body"];
+    mthd.name = entry["name"];
 
+    mthd.first_line = entry["lineno"];
+    mthd.last_line = get_last_line(entry, mthd.first_line);
+    // add all args
+    if(entry.count("args") && entry["args"].count("args")){
+        nlohmann::json args = entry["args"]["args"];
+        for (nlohmann::json::iterator it = args.begin(); it != args.end(); it++){
+            nlohmann::json entry = it.value();
+            mthd.args.push_back(entry["arg"]);
+        }
+    }
+    return mthd;
+}
+
+classes::cls get_class(nlohmann::json j){
+    classes::cls new_cls;
+
+    nlohmann::json body = j["body"];
+    new_cls.name = j["name"].get<std::string>();
+    for (nlohmann::json::iterator it = body.begin(); it != body.end(); it++){
+        nlohmann::json entry = it.value();
+        if (entry.count("ast_type")){
+            std::string ast_type = entry["ast_type"].get<std::string>();
+            if (!ast_type.compare("FunctionDef"))
+                new_cls.methods.push_back(get_method(entry));
+        }
+    }
+    return new_cls;
+}
+
+void print_method(methods::method m, std::string file_name, int from, int to){
+    std::fstream f(file_name);
+    std::string line;
+    std::cout << "code from lines: " << from << " - " << to << std::endl;
+    for (int i = 0; i <= to; i++){
+        getline(f,line);
+        if (i>=from)
+            std::cout << line << std::endl;
+    }
+}
+
+methods::method find_method(classes::file f, std::string name){
+    methods::method m;
+
+    for(classes::cls c: f.classes){
+        m = find_method_from_vector(c.methods, name);
+        if (m.name.compare("1"))
+            return m;
+    }
+
+    m = find_method_from_vector(f.methods, name);
+    if (m.name.compare("1"))
+        return m;
+
+    return m;
+}
+
+methods::method find_method_from_vector(std::vector<methods::method> methods, std::string name){
+    methods::method dummy;
+    dummy.name = "1";
+    for(methods::method m : methods){
+        if (!m.name.compare(name))
+            return m;
+    }
+    return dummy;
+}
+
+int get_last_line(nlohmann::json body, int curr){
+    if (body.size() <= 1)
+        return 0;
+    
+    for (nlohmann::json::iterator it = body.begin(); it != body.end(); it++){
+    nlohmann::json entry = it.value();
+    if(entry.count("lineno")){
+        int line = entry["lineno"];
+        curr = curr > line? curr: line;
+        }
+    int next_block = get_last_line(entry, curr);
+    curr = curr > next_block? curr : next_block;
+    }
+
+    return curr;
+}
+
+void print_methods(methods::method m){
+    std::cout << "    \\_ : " << m.name << std::endl;
+}
+
+void print_class(classes::cls c){
+    std::cout << "\\_ Class: " << c.name << std::endl;
+    for(methods::method m: c.methods)
+        print_methods(m);
+}
+
+void print_file(classes::file f){
+    std::cout << "File: " << f.name << std::endl;
+    for(classes::cls c: f.classes)
+        print_class(c);
+    for(methods::method m: f.methods)
+        print_methods(m);
 }
