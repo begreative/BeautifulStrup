@@ -13,6 +13,6 @@ int main(int argc, char const *argv[])
     std::string f = argv[1];
     std::string d = argv[2];
     methods::find_defintion(f, "print_class_info", d);
-    
+
     return 0;
 }
