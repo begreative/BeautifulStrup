@@ -30,3 +30,14 @@ c = Classy("beautiful")
 c.print_class_info()
 c.change_class_name("soup")
 print(c.get_class_name())
+
+if c.print_class_info():
+    print("yes")
+
+while c.print_class_info():
+    c.change_class_name("new")
+
+'''
+call can be in assign
+
+'''

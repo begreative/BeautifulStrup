@@ -14,6 +14,7 @@ namespace methods {
     public:
         std::string name; 
         std::vector<std::string> args;
+        std::vector<int> called_at_line;
         int var_amnt;
         int first_line;
         int last_line;
