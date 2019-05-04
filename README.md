@@ -18,7 +18,7 @@ is being called*
 #include <BeautifulStrup>
 
 int main(int argc, char const *argv[]) {
-  functions::find_invocation(argv[1], "add", argv[2]);
+  methods::find_invocation(argv[1], "add", argv[2]);
 }
 ```
 Here's what running this code would look like:
@@ -68,6 +68,16 @@ Found in BeautifulStrup.pdf (will be creating github webpage soon)
 ### Supported Compilers
 Currently, the following compilers are known to work: GCC 4.8 - 9.0 (and possibly later)
 This ran on C++17. 
+
+</br>
+
+### Background
+This library was born out of two things: one, a requirement for a class at
+Columbia University called Design in C++ taught by C++ creator Bjarne Stroustrup
+and, two, the three student designers being faced with large code bases. In the
+absence of an IDE (or to supplement it), this project aims to make sense of 
+what can sometimes become spaghetti code.
+
 
 </br>
 
