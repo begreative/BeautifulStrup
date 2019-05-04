@@ -1,36 +1,87 @@
-# beautifulStroup
-C++ final project
+# BeautifulStrup
+## A Parser for Python Projects
 
-<h2>Motivation</h2><br/>
-This project was created for the user to breakdown complex project architecture into simpler forms. 
-For example, given a python file directory, the user can find the defintion of a functions, see the relationships between various functions and find where the functions are invoked in the file provided.
+</br>
+
+### Overview
+Designed for working with large Python projects, BeautifulStrup is C++ open 
+source library that allows users to query certain details about the Python 
+source code. 
+
+Here's one simple example of one library function: <br>
+*Given a Python file, the name of a method therein, and a Python project (a 
+directory of one or more Python source files), print everywhere that function
+is being called*
+
+**find_add.cpp**
+```cpp
+#include <BeautifulStrup>
+
+int main(int argc, char const *argv[]) {
+  methods::find_invocation(argv[1], "add", argv[2]);
+}
+```
+Here's what running this code would look like:
+```bash
+$ ./a.out foo.bar ./foo_files
+>> 
+bar.py: line 4, line 33
+baz.py: line 78
+```
+
+Information on all the functions and data types available in the library can be
+found in the documentation. 
   
-<h2>Setup</h2>
-<pre>
+</br>
+
+### Installation
+
+#### Requirements
+* UNIX or UNIX-like operating system (e.g. MacOS, a Linux distribution, etc.)
+* Python 2.7 or higher
+* `pip` package manager for Python
+* `brew` or comparable package management system
+
+#### Dependencies
+```bash
+$ pip install astexport
 $ brew install boost
 $ brew tap nlohmann/json 
-$ brew install nlohmann_json</pre>
+$ brew install nlohmann_json
+```
 
-<h2>Running the tests</h2>
-<pre>./test_soup FILE.py DIRECTORY</pre>
+#### Usage
+When you download or clone this repo, for now, you'll need to have the directory
+in the same file where you plan on using it. Then you need only add 
+`#include "BeautfiulStrup.h"` to your `.cpp` file. We're currently working on an
+installation script that will install all these dependencies, as well as add a
+linked library file to your `usr/local/include` path for easier use.
+
+</br>
 
 
-<h2>Documentation</h2><br/>
-<pre> The 3 main functions are 
-  <li> void find_defintion(std::string file, std::string func, std::string dir) <br/>
-  This function finds the location of the method in a class and prints out the method for the user
-  <li> void find_invocation(std::string file, std::string func, std::string dir) <br/>
-  This function finds where the method is invoked in all other classes
-  <li> void find_relationships(std::string dir) <br/>
-  This function gives the user the relationships between the different functions in a class</pre>
+### Documentation
+Found in BeautifulStrup.pdf (will be creating github webpage soon)
 
-<h2>Supported Compilers</h2>
+</br>
+
+### Supported Compilers
 Currently, the following compilers are known to work: GCC 4.8 - 9.0 (and possibly later)
 This ran on C++17. 
 
-<h2>Authors</h2>
-Ben Arbib (ba2490) <br/>
-Vikram Ho (vwh2107)<br/>
-Gael Zendejas (gz2255)<br/>
+</br>
+
+### Background
+This library was born out of two things: one, a requirement for a class at
+Columbia University called Design in C++ taught by C++ creator Bjarne Stroustrup
+and, two, the three student designers being faced with large code bases. In the
+absence of an IDE (or to supplement it), this project aims to make sense of 
+what can sometimes become spaghetti code.
 
 
+</br>
+
+### Authors
+Ben Arbib (ba2490)
+Vikram Ho (vwh2107)
+Gael Zendejas (gz2255)
