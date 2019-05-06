@@ -17,7 +17,7 @@ std::string create_json(std::string file); //Given a python file, creates AST in
 nlohmann::json open_json(std::string file); //Given a JSON file, opens and returns a JSON object
 classes::file create_file_class(nlohmann::json j);
 std::vector<nlohmann::json> dir_to_json_files(std::string dir);
-std::string get_import(nlohmann::json entry);
+classes::import get_import(nlohmann::json entry);
 methods::method get_method(nlohmann::json entry);
 classes::cls get_class(nlohmann::json entry);
 void print_method(methods::method m ,std::string file_name, int from, int to);
@@ -105,6 +105,16 @@ namespace classes {
         //not much to do;
     };
 
+    import::import()
+    {
+        class_name = "";
+        import_name = "";
+    };
+
+    import::~import(){
+        //not much to do;
+    };
+
     file::file()
     {
         name = "";
@@ -134,8 +144,8 @@ classes::file create_file_class(nlohmann::json j){
             nlohmann::json entry = it.value();
             if (entry.count("ast_type")){
                 std::string ast_type = entry["ast_type"].get<std::string>();
-                if (!ast_type.compare("Import"))
-                    f.import.push_back(get_import(entry));
+                if (!ast_type.compare("Import") || !ast_type.compare("ImportFrom"))
+                    f.imports.push_back(get_import(entry));
                 else if (!ast_type.compare("If"))
                     continue;
                 else if (!ast_type.compare("ClassDef"))
@@ -263,11 +273,13 @@ std::vector<nlohmann::json> dir_to_json_files(std::string dir){
     return json_vector;
 }
 
-std::string get_import(nlohmann::json entry){
-    std::cout << entry << std::endl;
-    if (entry.count("names") && entry["names"].count("name"))
-        return entry["names"]["name"];
-    return "";
+classes::import get_import(nlohmann::json entry){
+    classes::import import_obj;
+    if (entry.count("names") && entry["names"].count("name")){
+        import_obj.class_name = entry["module"].get<std::string>();
+        import_obj.class_name = entry["names"]["name"];
+    }
+    return import_obj;
 }
 
 methods::method get_method(nlohmann::json entry){

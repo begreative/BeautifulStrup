@@ -37,25 +37,25 @@ namespace classes {
         ~cls();
     };
 
-    class file{
-    public:
-        std::string name;
-        std::vector<cls> classes;
-        std::vector<methods::method> methods;
-        std::vector<classes::import> import;
-
-        file();
-        ~file();
-    };
-
     class import{
-        public:
+    public:
         std::string class_name;
         std::string import_name;
 
         import();
         ~import();
-    }
+    };
+
+    class file{
+    public:
+        std::string name;
+        std::vector<cls> classes;
+        std::vector<methods::method> methods;
+        std::vector<classes::import> imports;
+
+        file();
+        ~file();
+    };
 
     // void create_file_trees(std::string dir);
     file create_file_class(std::string file_name);
