@@ -34,7 +34,6 @@
 *.json
 
 ast_*
-*.txt
 
 test_soup
 test_soup.dSYM

@@ -264,6 +264,7 @@ std::vector<nlohmann::json> dir_to_json_files(std::string dir){
 }
 
 std::string get_import(nlohmann::json entry){
+    std::cout << entry << std::endl;
     if (entry.count("names") && entry["names"].count("name"))
         return entry["names"]["name"];
     return "";

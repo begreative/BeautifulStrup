@@ -20,6 +20,7 @@ namespace methods {
         int last_line;
         std::string obj_ref;
         std::string from_class;
+
         method();
         ~method();
     };
@@ -31,6 +32,7 @@ namespace classes {
     public:
         std::string name;
         std::vector<methods::method> methods;
+
         cls();
         ~cls();
     };
@@ -40,11 +42,20 @@ namespace classes {
         std::string name;
         std::vector<cls> classes;
         std::vector<methods::method> methods;
-        std::vector<std::string> import;
+        std::vector<classes::import> import;
 
         file();
         ~file();
     };
+
+    class import{
+        public:
+        std::string class_name;
+        std::string import_name;
+
+        import();
+        ~import();
+    }
 
     // void create_file_trees(std::string dir);
     file create_file_class(std::string file_name);
