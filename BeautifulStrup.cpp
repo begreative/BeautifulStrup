@@ -18,8 +18,8 @@ nlohmann::json open_json(std::string file); //Given a JSON file, opens and retur
 classes::file create_file_class(nlohmann::json j);
 std::vector<nlohmann::json> dir_to_json_files(std::string dir);
 classes::import get_import(nlohmann::json entry);
-methods::method get_method(nlohmann::json entry);
-classes::cls get_class(nlohmann::json entry);
+methods::method get_method(nlohmann::json entry, classes::file f);
+classes::cls get_class(nlohmann::json entry, classes::file f);
 void print_method(methods::method m ,std::string file_name, int from, int to);
 methods::method find_method(classes::file f, std::string name);
 methods::method find_method_from_vector(std::vector<methods::method> methods, std::string name);
@@ -61,9 +61,11 @@ namespace methods {
             }
         }
 
-        for(classes::file f : files)
-          print_methods_from_file(f, func);
-        
+        for(classes::file f : files){
+            // print_file(f);
+            print_methods_from_file(f, func);
+        }
+    
     }
 
     //TODO: find where the function lives
@@ -137,7 +139,6 @@ namespace classes {
 classes::file create_file_class(nlohmann::json j){
         classes::file f;
         nlohmann::json body;
-        // f.name = file_name;
         if (j.count("body"))
             body = j["body"];
         for (nlohmann::json::iterator it = body.begin(); it != body.end(); it++){
@@ -149,15 +150,15 @@ classes::file create_file_class(nlohmann::json j){
                 else if (!ast_type.compare("If"))
                     continue;
                 else if (!ast_type.compare("ClassDef"))
-                    f.classes.push_back(get_class(entry));
+                    f.classes.push_back(get_class(entry, f));
                 else if (!ast_type.compare("FunctionDef"))
-                    f.methods.push_back(get_method(entry));
+                    f.methods.push_back(get_method(entry, f));
                 else if(!ast_type.compare("Assign"))
-                    add_if_assign_to_call(f.methods, entry);
+                    add_if_assign_to_call(f.method_calls, entry);
                 else if(!ast_type.compare("Expr"))
-                    add_if_expr_to_call(f.methods, entry);
+                    add_if_expr_to_call(f.method_calls, entry);
                 else if(!ast_type.compare("Call"))
-                    add_call_line_num(f.methods, entry);
+                    add_call_line_num(f.method_calls, entry);
             }
         }
     return f;
@@ -168,25 +169,29 @@ void add_count(methods::method m, int line){
 }
 
 void print_methods_from_methods(methods::method m, std::string func, std::string filename){
-  if (!m.name.compare(func)){
-    std::cout << "Method \"" << func << "\" is used in file " << filename << " in lines: ";
-    for (int i : m.called_at_line)
-      std::cout << i << ", ";
-    std::cout << "\n" << std::endl;
+    std::cout << "printinggggg" << std::endl;
+
+    if (!m.name.compare(func))
+    {
+        std::cout << "Method \"" << func << "\" is used in file " << filename << " in lines: ";
+        for (int i : m.called_at_line)
+            std::cout << i << ", ";
+        std::cout << "\n"
+                  << std::endl;
   }
 
 }
 
 void print_methods_from_classes(classes::cls c, std::string func, std::string filename){
-  for(methods::method m : c.methods)
-  print_methods_from_methods(m, func, filename);
+  for(methods::method m : c.method_calls)
+    print_methods_from_methods(m, func, filename);
 }
 
 void print_methods_from_file(classes::file f, std::string func){
   for(classes::cls c: f.classes)
-    print_methods_from_classes(c, func, f.name);
+      print_methods_from_classes(c, func, f.name);
 
-  for(methods::method m : f.methods)
+  for(methods::method m : f.method_calls)
     print_methods_from_methods(m, func, f.name);
 }
 
@@ -198,13 +203,19 @@ void add_call_line_num(std::vector<methods::method> m, nlohmann::json entry){
     method_name = entry["func"]["attr"].get<std::string>();
   else if(entry.count("func") && entry["func"].count("id"))
     method_name = entry["func"]["id"].get<std::string>();
-  
+
   for(methods::method curr : m){
     if (!curr.name.compare(method_name)){
       add_count(curr, line);
-      break;
+      return;
     }
   }
+
+  methods::method new_method;
+  new_method.name = method_name;
+  m.push_back(new_method);
+  add_count(new_method, line);
+
 }
 
 void add_if_expr_to_call(std::vector<methods::method> m, nlohmann::json entry){
@@ -282,7 +293,7 @@ classes::import get_import(nlohmann::json entry){
     return import_obj;
 }
 
-methods::method get_method(nlohmann::json entry){
+methods::method get_method(nlohmann::json entry, classes::file f){
     methods::method mthd;
     nlohmann::json body = entry["body"];
     mthd.name = entry["name"];
@@ -297,10 +308,24 @@ methods::method get_method(nlohmann::json entry){
             mthd.args.push_back(entry["arg"]);
         }
     }
+
+    for (nlohmann::json::iterator it = body.begin(); it != body.end(); it++){
+        nlohmann::json in_meth = it.value();
+        if (in_meth.count("ast_type")){
+            std::string ast_type = in_meth["ast_type"].get<std::string>();
+            if (!ast_type.compare("Assign"))
+                add_if_assign_to_call(f.method_calls, in_meth);
+            else if (!ast_type.compare("Expr"))
+                add_if_expr_to_call(f.method_calls, in_meth);
+            else if (!ast_type.compare("Call"))
+                add_call_line_num(f.method_calls, in_meth);
+        }
+    }
+
     return mthd;
 }
 
-classes::cls get_class(nlohmann::json j){
+classes::cls get_class(nlohmann::json j, classes::file f){
     classes::cls new_cls;
 
     nlohmann::json body = j["body"];
@@ -310,7 +335,7 @@ classes::cls get_class(nlohmann::json j){
         if (entry.count("ast_type")){
             std::string ast_type = entry["ast_type"].get<std::string>();
             if (!ast_type.compare("FunctionDef"))
-                new_cls.methods.push_back(get_method(entry));
+                new_cls.methods.push_back(get_method(entry, f));
         }
     }
     return new_cls;

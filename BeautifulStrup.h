@@ -32,6 +32,7 @@ namespace classes {
     public:
         std::string name;
         std::vector<methods::method> methods;
+        std::vector<methods::method> method_calls;
 
         cls();
         ~cls();
@@ -51,6 +52,7 @@ namespace classes {
         std::string name;
         std::vector<cls> classes;
         std::vector<methods::method> methods;
+        std::vector<methods::method> method_calls;
         std::vector<classes::import> imports;
 
         file();
