@@ -18,8 +18,8 @@ nlohmann::json open_json(std::string file); //Given a JSON file, opens and retur
 classes::file create_file_class(nlohmann::json j);
 std::vector<nlohmann::json> dir_to_json_files(std::string dir);
 classes::import get_import(nlohmann::json entry);
-methods::method get_method(nlohmann::json entry, classes::file f);
-classes::cls get_class(nlohmann::json entry, classes::file f);
+methods::method get_method(nlohmann::json entry, classes::file &f);
+classes::cls get_class(nlohmann::json entry, classes::file &f);
 void print_method(methods::method m ,std::string file_name, int from, int to);
 methods::method find_method(classes::file f, std::string name);
 methods::method find_method_from_vector(std::vector<methods::method> methods, std::string name);
@@ -55,7 +55,6 @@ namespace methods {
                 std::string py_name = d->path().string();
                 std::string jn = create_json(py_name);
                 nlohmann::json jf = open_json(jn);
-                // std::cout << "file: " << py_name << std::endl;
                 classes::file f = (create_file_class(jf));
                 f.name = py_name;
                 files.push_back(f);
@@ -166,8 +165,6 @@ classes::file create_file_class(nlohmann::json j){
     }
 
 void print_methods_from_methods(methods::method m, std::string func, std::string filename){
-    // std::cout << "printinggggg" << std::endl;
-
     if (!m.name.compare(func))
     {
     std::cout << "Method \"" << m.name << "\" is used in file " << filename << " in lines: ";
@@ -206,18 +203,18 @@ void add_call_line_num(classes::file &f, nlohmann::json entry){
         return;
 
     if (!method_name.compare("print")){
-        if(entry.count("args") && entry["args"].count("args")){
-            nlohmann::json args = entry["args"]["args"];
-            if(!args["ast_type"].get<std::string>().compare("Call"))
+        if(entry.count("args")){
+            nlohmann::json args = entry["args"][0];
+            if (args.count("ast_type") && !args["ast_type"].get<std::string>().compare("Call")){
                 add_call_line_num(f, args);
+            }
         }
             return;
     }
 
-        for (methods::method &curr : f.method_calls){
+    for (methods::method &curr : f.method_calls){
         if (!curr.name.compare(method_name)){
             curr.called_at_line.push_back(line);
-            // std::cout << "[FOUND] added func name : " << method_name << " from line " << line << std::endl;
             return;
         }
     }
@@ -226,7 +223,6 @@ void add_call_line_num(classes::file &f, nlohmann::json entry){
     new_method.name = method_name;
     new_method.called_at_line.push_back(line);
     f.method_calls.push_back(new_method);
-    // std::cout << "[NEW] added func name : " << method_name << " from line " << line << std::endl;
 }
 
 void add_if_expr_to_call(classes::file &f, nlohmann::json entry)
@@ -303,7 +299,7 @@ classes::import get_import(nlohmann::json entry){
     return import_obj;
 }
 
-methods::method get_method(nlohmann::json entry, classes::file f){
+methods::method get_method(nlohmann::json entry, classes::file &f){
     methods::method mthd;
     nlohmann::json body = entry["body"];
     mthd.name = entry["name"];
@@ -335,7 +331,7 @@ methods::method get_method(nlohmann::json entry, classes::file f){
     return mthd;
 }
 
-classes::cls get_class(nlohmann::json j, classes::file f){
+classes::cls get_class(nlohmann::json j, classes::file &f){
     classes::cls new_cls;
 
     nlohmann::json body = j["body"];
