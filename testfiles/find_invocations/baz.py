@@ -18,4 +18,3 @@ class Bazzy:
 
     def multiply(self, a, b):
         return a * b
-    
