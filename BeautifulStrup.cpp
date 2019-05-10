@@ -55,6 +55,7 @@ namespace methods {
                 std::string py_name = d->path().string();
                 std::string jn = create_json(py_name);
                 nlohmann::json jf = open_json(jn);
+                // std::cout << "file: " << py_name << std::endl;
                 classes::file f = (create_file_class(jf));
                 f.name = py_name;
                 files.push_back(f);
@@ -193,25 +194,39 @@ void print_methods_from_file(classes::file f, std::string func){
 }
 
 void add_call_line_num(classes::file &f, nlohmann::json entry){
-  std::string method_name;
-  int line = entry["lineno"];
+    std::string method_name;
+    int line = entry["lineno"];
 
-  if (entry.count("func") && entry["func"].count("attr"))
-    method_name = entry["func"]["attr"].get<std::string>();
-  else if(entry.count("func") && entry["func"].count("id"))
-    method_name = entry["func"]["id"].get<std::string>();
+    if (entry.count("func") && entry["func"].count("attr"))
+        method_name = entry["func"]["attr"].get<std::string>();
+    else if(entry.count("func") && entry["func"].count("id"))
+        method_name = entry["func"]["id"].get<std::string>();
 
-  for(methods::method curr : f.method_calls){
-    if (!curr.name.compare(method_name)){
-        curr.called_at_line.push_back(line);
+    if (method_name.size() == 0)
         return;
-    }
-  }
 
-  methods::method new_method;
-  new_method.name = method_name;
-  new_method.called_at_line.push_back(line);
-  f.method_calls.push_back(new_method);
+    if (!method_name.compare("print")){
+        if(entry.count("args") && entry["args"].count("args")){
+            nlohmann::json args = entry["args"]["args"];
+            if(!args["ast_type"].get<std::string>().compare("Call"))
+                add_call_line_num(f, args);
+        }
+            return;
+    }
+
+        for (methods::method &curr : f.method_calls){
+        if (!curr.name.compare(method_name)){
+            curr.called_at_line.push_back(line);
+            // std::cout << "[FOUND] added func name : " << method_name << " from line " << line << std::endl;
+            return;
+        }
+    }
+
+    methods::method new_method;
+    new_method.name = method_name;
+    new_method.called_at_line.push_back(line);
+    f.method_calls.push_back(new_method);
+    // std::cout << "[NEW] added func name : " << method_name << " from line " << line << std::endl;
 }
 
 void add_if_expr_to_call(classes::file &f, nlohmann::json entry)
