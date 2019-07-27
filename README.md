@@ -77,11 +77,3 @@ Columbia University called Design in C++ taught by C++ creator Bjarne Stroustrup
 and, two, the three student designers being faced with large code bases. In the
 absence of an IDE (or to supplement it), this project aims to make sense of 
 what can sometimes become spaghetti code.
-
-
-</br>
-
-### Authors
-Ben Arbib (ba2490)
-Vikram Ho (vwh2107)
-Gael Zendejas (gz2255)
